@@ -13,7 +13,7 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 
 # 3. 선수용 입력 화면 (사이드바)
 st.sidebar.header("선수 정보 입력")
-player_name = st.sidebar.selectbox ["김도영", "양현종", "나성범", "윤영철"]
+player_name = st.sidebar.selectbox("선수 이름을 선택하세요", ["김도영", "양현종", "나성범", "윤영철"])
 phase = st.sidebar.selectbox("현재 주기화 단계", ["Strength", "Power", "Maintenance"])
 
 # 4. 메인 화면 - 훈련 영상 및 큐잉
