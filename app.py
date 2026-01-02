@@ -107,3 +107,57 @@ ax2.bar(chart_data['날짜'], chart_data['통증'], color='red', alpha=0.3, labe
 
 plt.title(f"{player_name} 선수 컨디션 리포트")
 st.pyplot(fig) # 화면에 그래프 출력
+
+st.divider()
+st.subheader("📊 파워 테스트 심층 분석 (Jump Height vs Force Strategy)")
+
+# 1. 가상의 데이터 준비 (나중에는 구글 시트에서 가져오면 됩니다!)
+power_data = pd.DataFrame({
+    "선수명": ["김도영", "양현종", "나성범", "윤영철", "최형우"],
+    "점프높이(cm)": [65, 48, 72, 55, 60],
+    "Peak_Force(N)": [3500, 2800, 4200, 3100, 3900],
+    "TTPF(ms)": [250, 350, 180, 300, 220]
+})
+
+# 2. 그래프 그리기 시작 (3개의 축 만들기)
+fig, ax1 = plt.subplots(figsize=(12, 6)) # 기본 축 (Y1: 점프 높이)
+ax2 = ax1.twinx() # 두 번째 축 (Y2: Peak Force)
+ax3 = ax1.twinx() # 세 번째 축 (Y3: TTPF)
+
+# 3. 세 번째 축의 위치를 오른쪽 바깥으로 밀어내기
+ax3.spines["right"].set_position(("axes", 1.15))
+ax3.set_frame_on(True) # 프레임 보이게 설정
+ax3.patch.set_visible(False) # 배경 투명하게
+
+# --- 그래프 그리기 ---
+
+# [막대] Y1: 점프 높이 (왼쪽 축, 파란색)
+bars = ax1.bar(power_data['선수명'], power_data['점프높이(cm)'], color='skyblue', alpha=0.6, label='점프 높이 (cm)')
+ax1.set_ylabel('점프 높이 (cm)', color='skyblue', fontsize=12, fontweight='bold')
+ax1.tick_params(axis='y', labelcolor='skyblue')
+ax1.set_ylim(0, 80) # Y축 범위 설정 (필요시 조절)
+
+# [꺾은선 1] Y2: Peak Force (오른쪽 첫 번째, 빨간색)
+line1 = ax2.plot(power_data['선수명'], power_data['Peak_Force(N)'], color='red', marker='o', linewidth=3, label='Peak Force (N)')
+ax2.set_ylabel('Peak Force (N)', color='red', fontsize=12, fontweight='bold')
+ax2.tick_params(axis='y', labelcolor='red')
+ax2.set_ylim(2000, 5000) # Y축 범위 설정
+
+# [꺾은선 2] Y3: TTPF (오른쪽 두 번째, 초록색)
+line2 = ax3.plot(power_data['선수명'], power_data['TTPF(ms)'], color='green', marker='s', linestyle='--', linewidth=2, label='TTPF (ms)')
+ax3.set_ylabel('TTPF (ms)', color='green', fontsize=12, fontweight='bold')
+ax3.tick_params(axis='y', labelcolor='green')
+ax3.set_ylim(100, 400) # Y축 범위 설정
+
+# --- 마무리 설정 ---
+
+plt.title("선수별 파워 테스트 결과 비교 분석", fontsize=16)
+ax1.set_xlabel("선수명", fontsize=12)
+
+# 범례(Legend) 합치기
+lines = [bars] + line1 + line2
+labels = [l.get_label() for l in lines]
+ax1.legend(lines, labels, loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3) # 범례를 그래프 아래로 뺌
+
+plt.tight_layout() # 레이아웃 자동 정리
+st.pyplot(fig) # 화면에 출력!
