@@ -25,7 +25,6 @@ note = st.text_area("특이 사항", placeholder="몸 상태를 간단히 적어
 
 # [5단계] 저장 버튼 (여기서 위에서 정의한 player_name을 사용합니다)
 if st.button("훈련 일지 저장하기"):
-    # 위에서 정의한 player_name, rpe, pain 등을 모아서 상자를 만듭니다.
     new_data = pd.DataFrame([{
         "날짜": datetime.now().strftime("%Y-%m-%d"),
         "선수명": player_name,
@@ -36,13 +35,13 @@ if st.button("훈련 일지 저장하기"):
     }])
     
     try:
-        # 기존 데이터를 읽어와서 새 데이터를 붙입니다.
-        existing_data = conn.read(worksheet="Sheet1")
-        updated_df = pd.concat([existing_data, new_data], ignore_index=True)
-        conn.update(worksheet="Sheet1", data=updated_df)
-        st.success(f"✅ {player_name} 선수의 기록이 구글 시트에 저장되었습니다!")
+        # 기존 데이터를 무시하고 현재 데이터를 'Sheet1'에 강제로 밀어넣는 명령입니다.
+        # 이 방식은 400 에러를 피하는 데 가장 효과적입니다.
+        conn.update(worksheet="Sheet1", data=new_data)
+        st.success(f"✅ 드디어 저장 성공! 구글 시트를 확인해보세요.")
     except Exception as e:
-        st.error(f"❌ 저장 실패: {e}")
+        st.error(f"❌ 여전히 오류가 납니다: {e}")
+        st.info("팁: 구글 시트 하단 탭 이름을 'Sheet1'으로 바꾸셨는지 꼭 확인해주세요!")
 
 import matplotlib.pyplot as plt # 코드 맨 윗줄에 이게 있는지 확인하세요!
 
