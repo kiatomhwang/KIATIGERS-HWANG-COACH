@@ -2,26 +2,114 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
-import matplotlib.pyplot as plt  # <--- 이 줄이 반드시 있어야 합니다!0
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
-# [1단계] 사이트 기본 설정
-st.set_page_config(page_title="KIA Tigers 황코치 트레이닝", layout="wide")
-st.title("⚾ KIA Tigers 선수단 컨디션 관리 시스템")
+# [1] 페이지 설정 (Tigers 테마)
+st.set_page_config(page_title="KIA Tigers 파워 분석", layout="wide")
+st.title("⚾ KIA Tigers 선수단 파워 성능 데이터보드")
 
-# [2단계] 구글 시트 연결 버튼 (열쇠)
+# [2] 구글 시트 연결
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# [3단계] 선수 정보 정의 (여기가 정의되어야 NameError가 안 납니다!)
-st.sidebar.header("선수단 명단")
-# 여기서 player_name이라는 단어를 정의(선언)합니다.
-player_name = st.sidebar.selectbox("선수를 선택하세요", ["김도영", "양현종", "나성범", "윤영철", "박찬호"])
-phase = st.sidebar.selectbox("주기화 단계", ["Strength", "Power", "Maintenance"])
+# [3] 사이드바: 선수 선택 및 입력
+with st.sidebar:
+    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/c/c9/KIA_Tigers_logo.svg/1200px-KIA_Tigers_logo.svg.png", width=100)
+    st.header("선수단 관리")
+    player_name = st.selectbox("선수 선택", ["김도영", "양현종", "나성범", "윤영철", "박찬호"])
+    
+    st.divider()
+    st.subheader("오늘의 테스트 기록")
+    jump_h = st.number_input("점프 높이 (cm)", 0, 100, 50)
+    peak_f = st.number_input("Peak Force (N)", 0, 6000, 3000)
+    ttpf = st.number_input("TTPF (ms)", 0, 500, 250)
+    
+    if st.button("🚀 데이터 저장 및 업데이트"):
+        new_row = pd.DataFrame([{
+            "날짜": datetime.now().strftime("%Y-%m-%d"),
+            "선수명": player_name,
+            "점프높이": jump_h,
+            "Peak_Force": peak_f,
+            "TTPF": ttpf
+        }])
+        try:
+            df = conn.read(worksheet="Sheet1")
+            updated_df = pd.concat([df, new_row], ignore_index=True)
+            conn.update(worksheet="Sheet1", data=updated_df)
+            st.success("데이터가 시트에 저장되었습니다!")
+            st.balloons()
+        except:
+            st.error("저장 실패. 시트 설정을 확인하세요.")
 
-# [4단계] 훈련 기록 입력칸
-st.subheader(f"📝 {player_name} 선수 훈련 일지 기록")
-rpe = st.slider("오늘의 훈련 강도 (1-10)", 1, 10, 5)
-pain = st.slider("통증 수치 (0-10)", 0, 10, 0)
-note = st.text_area("특이 사항", placeholder="몸 상태를 간단히 적어주세요.")
+# [4] 메인 화면: 그래프 분석 (Plotly 활용)
+st.subheader("📊 파워 테스트 추세 분석 (Jump Height vs Force)")
+
+# 시트에서 데이터 불러오기 (실패 시 샘플 데이터 사용)
+try:
+    display_data = conn.read(worksheet="Sheet1")
+except:
+    # 데이터가 없을 때를 대비한 샘플
+    display_data = pd.DataFrame({
+        "선수명": ["김도영", "양현종", "나성범", "윤영철", "박찬호"],
+        "점프높이": [65, 48, 72, 55, 60],
+        "Peak_Force": [3500, 2800, 4200, 3100, 3900],
+        "TTPF": [240, 320, 190, 280, 210]
+    })
+
+# --- Plotly 콤보 그래프 생성 ---
+fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+# 1. 막대 그래프 (Jump Height) - 블랙/다크 그레이
+fig.add_trace(
+    go.Bar(
+        x=display_data['선수명'], 
+        y=display_data['점프높이'], 
+        name="점프 높이 (cm)",
+        marker_color='#060606', # Tigers Black
+        opacity=0.8
+    ),
+    secondary_y=False,
+)
+
+# 2. 꺾은선 1 (Peak Force) - 타이거즈 레드
+fig.add_trace(
+    go.Scatter(
+        x=display_data['선수명'], 
+        y=display_data['Peak_Force'], 
+        name="Peak Force (N)",
+        line=dict(color="#EA0029", width=4), # Tigers Red
+        mode='lines+markers'
+    ),
+    secondary_y=True,
+)
+
+# 3. 꺾은선 2 (TTPF) - 실버/그레이
+fig.add_trace(
+    go.Scatter(
+        x=display_data['선수명'], 
+        y=display_data['TTPF'], 
+        name="TTPF (ms)",
+        line=dict(color="#A5A8AA", width=2, dash='dot'), # Silver Gray
+        mode='lines+markers'
+    ),
+    secondary_y=True,
+)
+
+# 레이아웃 꾸미기
+fig.update_layout(
+    hovermode="x unified",
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    paper_bgcolor="white",
+    plot_bgcolor="#F8F9FA", # 연한 그레이 배경
+    height=500
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# [5] 데이터 테이블 확인
+st.divider()
+st.subheader("📋 전체 테스트 로그")
+st.dataframe(display_data.style.highlight_max(axis=0, color='#FFD7D7'))
 
 # [5단계] 저장 버튼 (여기서 위에서 정의한 player_name을 사용합니다)
 # [최종 저장 코드 조각]
