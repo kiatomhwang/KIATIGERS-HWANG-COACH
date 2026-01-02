@@ -24,7 +24,7 @@ with col1:
     st.info("💡 GOATA 핵심 큐잉")
     st.write("- 뒤꿈치 1cm 유지 (Heel Away)\n- 정강이 외회전 (Bow-out)\n- 발 바깥날로 지면 움켜쥐기")
     # 코치님의 유튜브 영상 ID로 교체 가능합니다.
-    st.video("https://youtu.be/bHYnDnqWbxA?si=ICuUkfJNMS5v_tYz)
+    st.video("https://youtu.be/bHYnDnqWbxA?si=ICuUkfJNMS5v_tYz")
 
 st.subheader("📈 최근 퍼포먼스 트렌드")
 
