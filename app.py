@@ -12,16 +12,24 @@ st.title("⚾ 선수별 맞춤형 트레이닝 & 컨디션 로그")
 # (주소는 나중에 Streamlit 설정창에서 넣을 거예요!)
 conn = st.connection("gsheets", type=GSheetsConnection)
 # 기존의 read/update 부분을 이 로직으로 바꿔보세요.
-try:
-    # 시트에서 데이터를 읽어오되, 만약 실패하면 빈 상자를 만듭니다.
-    existing_data = conn.read(worksheet="Sheet1")
-    updated_df = pd.concat([existing_data, new_data], ignore_index=True)
-    conn.update(worksheet="Sheet1", data=updated_df)
-    st.success("✅ 저장 성공!")
-except Exception as e:
-    # 만약 시트가 비어있어서 에러가 난다면, 아예 새로 써버리는 명령입니다.
-    conn.update(worksheet="Sheet1", data=new_data)
-    st.success("✅ 시트가 비어있어 새로 생성하여 저장했습니다!")
+# [저장 버튼 로직 전체] - 이 덩어리를 버튼 블록 안에 넣으세요.
+
+if st.button("훈련 일지 저장하기"):
+    # 1. 'new_data'라는 이름의 데이터 상자를 먼저 만듭니다. (이게 빠지면 에러가 납니다!)
+    new_data = pd.DataFrame([{
+        "날짜": datetime.now().strftime("%Y-%m-%d"),
+        "선수명": player_name,
+        "RPE": rpe,
+        "통증": pain,
+        "메모": note
+    }])
+    
+    try:
+        # 2. 위에서 만든 'new_data'를 구글 시트에 업데이트하라고 시킵니다.
+        conn.update(worksheet="Sheet1", data=new_data) 
+        st.success("✅ 저장 성공! 이제 구글 시트에서 확인해 보세요.")
+    except Exception as e:
+        st.error(f"❌ 저장 실패: {e}")
 
 # 3. 선수용 입력 화면 (사이드바)
 st.sidebar.header("선수 정보 입력")
