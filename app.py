@@ -54,3 +54,30 @@ with col2:
             st.success("✅ 저장 완료! 구글 시트를 확인해보세요.")
         except Exception as e:
             st.error(f"❌ 저장 실패: 시트 이름을 확인하거나 설정을 다시 확인해주세요. ({e})")
+
+import matplotlib.pyplot as plt # 코드 맨 윗줄에 이게 있는지 확인하세요!
+
+st.subheader("📈 최근 퍼포먼스 트렌드")
+
+# 1. 데이터 준비 (구글 시트에서 가져온 데이터를 쓴다고 가정)
+chart_data = pd.DataFrame({
+    "날짜": ["01-01", "01-02", "01-03", "01-04", "01-05"],
+    "RPE": [5, 7, 4, 8, 6],
+    "통증": [0, 1, 0, 2, 1]
+})
+
+# 2. 그래프 그리기 시작
+fig, ax1 = plt.subplots(figsize=(10, 5))
+
+# X축 이름과 Y축(RPE) 설정
+ax1.set_xlabel('훈련 날짜 (Date)')
+ax1.set_ylabel('훈련 강도 (RPE)', color='green')
+ax1.plot(chart_data['날짜'], chart_data['RPE'], color='green', marker='o', label='강도(RPE)')
+
+# Y축(통증) 하나 더 만들기
+ax2 = ax1.twinx()
+ax2.set_ylabel('통증 수치 (Pain)', color='red')
+ax2.bar(chart_data['날짜'], chart_data['통증'], color='red', alpha=0.3, label='통증(Pain)')
+
+plt.title(f"{player_name} 선수 컨디션 리포트")
+st.pyplot(fig) # 화면에 그래프 출력
