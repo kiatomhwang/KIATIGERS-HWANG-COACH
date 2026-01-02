@@ -19,7 +19,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("📺 트레이닝 가이드")
     # GOATA 핵심 큐잉과 영상 배치
-    st.video("https://www.youtube.com/watch?v=WVobz_eTNKk") # 실제 코치님 영상 링크
+    st.video("https://youtube.com/shorts/ZvDwANJesFQ?si=5QtdVKJnBg0fT74h") # 실제 코치님 영상 링크
     st.warning("💡 GOATA 체크: 뒤꿈치를 지면에서 1cm 띄우고(Heel Away), 발 바깥날로 지면을 움켜쥐세요.")
 
 with col2:
