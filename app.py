@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
+import matplotlib.pyplot as plt  # <--- 이 줄이 반드시 있어야 합니다!
 
 # 1. 사이트 설정 및 제목
 st.set_page_config(page_title="KIA Tigers 황코치 트레이닝", layout="wide")
